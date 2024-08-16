@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { HDNodeWallet, Wallet } from 'ethers';
+import { HDNodeWallet, Wallet, ethers , formatEther } from 'ethers';
 import { generateMnemonic, mnemonicToSeedSync } from 'bip39';
 import { Buffer } from 'buffer';
 
@@ -11,6 +11,9 @@ const Eth = () => {
   const [wallets, setWallets] = useState([]);
   const [showMnemonic, setShowMnemonic] = useState(true);
   const [walletsGenerated, setWalletsGenerated] = useState(false);
+  const [balances, setBalances] = useState({});
+
+  const ethProvider = new ethers.JsonRpcProvider('https://eth-mainnet.g.alchemy.com/v2/KdCVU5ncCcmwkci5bur5IRc9MwkfA-y5')
 
   const handleGenerateMnemonic = () => {
     const newMnemonic = generateMnemonic();
@@ -19,7 +22,7 @@ const Eth = () => {
     setWalletsGenerated(true);
   };
 
-  const handleGenerateWallets = () => {
+  const handleGenerateWallets = async () => {
     const newWallets = wallets.slice();
     const size = newWallets.length + 1;
 
@@ -28,7 +31,18 @@ const Eth = () => {
 
     setWallets(newWallets);
     setShowMnemonic(false);
+    const ethBalance = await getEthBalance(wallet.address);
+    setBalances({
+      ...balances,
+      [wallet.address]: ethBalance,
+    });
   };
+
+  const getEthBalance = async (address) => {
+    const balance = await ethProvider.getBalance(address);
+    console.log(balance);
+    return formatEther(balance);
+  }
 
   const deriveEthereumPrivateKey = (seed, derivationPath) => {
     const hdNode = HDNodeWallet.fromSeed(seed);
@@ -48,10 +62,10 @@ const Eth = () => {
 
   const generateEthWallet = (index) => {
     const seed = mnemonicToSeedSync(mnemonic);
-    const path = `m/44'/60'/${index}'/0'`; 
+    const path = `m/44'/60'/${index}'/0'`;
     const privateKey = deriveEthereumPrivateKey(seed, path);
     const wallet = getEthereumWallet(privateKey);
-    
+
     return {
       address: wallet.address,
       privateKey: wallet.privateKey
@@ -87,9 +101,12 @@ const Eth = () => {
             Add new Account+
           </button>
           {wallets.map((wallet, index) => (
-            <div key={index} className="wallet-box">
-              <img src="/ethereum.png" alt="Ethereum Logo" className="ethereum-logo" />
-              <div><strong>Wallet {index + 1}:</strong> {wallet.address}</div>
+            <div key={index}>
+              <div className="wallet-box">
+                <img src="/ethereum.png" alt="Ethereum Logo" className="ethereum-logo" />
+                <div><strong>Wallet {index + 1}:</strong> {wallet.address}</div>
+              </div>
+              <div>Balance : {balances[wallet.address]}</div>
             </div>
           ))}
         </div>
