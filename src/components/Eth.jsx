@@ -13,7 +13,9 @@ const Eth = () => {
   const [walletsGenerated, setWalletsGenerated] = useState(false);
   const [balances, setBalances] = useState({});
 
-  const ethProvider = new ethers.JsonRpcProvider('https://eth-mainnet.g.alchemy.com/v2/KdCVU5ncCcmwkci5bur5IRc9MwkfA-y5')
+  const ETH_PRIVATE_KEY = import.meta.env.VITE_ETH_PRIVATE_KEY;
+
+  const ethProvider = new ethers.JsonRpcProvider(ETH_PRIVATE_KEY)
 
   const handleGenerateMnemonic = () => {
     const newMnemonic = generateMnemonic();

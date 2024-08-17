@@ -13,6 +13,8 @@ const Sol = () => {
     const [walletsGenerated, setWalletsGenerated] = useState(false);
     const [balances, setBalances] = useState({});
 
+    const SOL_PRIVATE_KEY = import.meta.env.VITE_SOL_PRIVATE_KEY;
+
     const handleGenerateMnemonic = () => {
         const newMnemonic = generateMnemonic();
         setMnemonic(newMnemonic);
@@ -50,7 +52,7 @@ const Sol = () => {
     };
 
     const getSolBalance = async (solPublicKey) => {
-        const url = new Connection("https://api.testnet.solana.com");
+        const url = new Connection(SOL_PRIVATE_KEY);
         const publicKey = new PublicKey(solPublicKey);
         const balance = await url.getBalance(publicKey);
         return balance / 1e9;
